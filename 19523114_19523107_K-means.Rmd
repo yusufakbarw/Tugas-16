@@ -1,0 +1,132 @@
+---
+title: "K-Means Clustering"
+author: ' 1. 19523114_Yusuf Akbar W  2. 19523107_Althaf ZR'
+---
+```{r}
+Data1 <- read.csv(file.choose(), header=TRUE) 
+```
+
+```{r}
+View(Data1)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(cluster)
+```
+
+```{r}
+library(factoextra)
+```
+
+```{r}
+summary(is.na(Data1))
+```
+
+```{r}
+df <- scale(Data1[-1])
+head(df)
+```
+
+#Pengukuran Jarak antar Clustering
+```{r}
+distance <- get_dist(Data1[-1])
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+```
+
+#Menghitung Pengelompokan K-means
+```{r}
+k2 <- kmeans(Data1, centers = 2, nstart = 25)
+str(k2)
+```
+
+```{r}
+fviz_cluster(k2, data = Data1)
+```
+
+```{r}
+k3 <- kmeans(Data1, centers = 3, nstart = 25)
+k4 <- kmeans(Data1, centers = 4, nstart = 25)
+k5 <- kmeans(Data1, centers = 5, nstart = 25)
+```
+
+#merencanakan untuk membandingkan :
+```{r}
+p1 <- fviz_cluster(k2, geom = "point", data = Data1[-1]) + ggtitle("k = 2")
+
+p2 <- fviz_cluster(k3, geom = "point",  data = Data1[-1]) + ggtitle("k = 3")
+
+p3 <- fviz_cluster(k4, geom = "point",  data = Data1[-1]) + ggtitle("k = 4")
+
+p4 <- fviz_cluster(k5, geom = "point",  data = Data1[-1]) + ggtitle("k = 5")
+
+library(gridExtra)
+grid.arrange(p1, p2, p3, p4, nrow = 2)
+```
+
+#Determining Optimal Clusters / menentukan cluster yang optimal
+
+1.Elboww method
+
+```{r}
+set.seed(123)
+fviz_nbclust(Data1, kmeans, method = "wss")
+```
+
+2.Silhouette Method
+
+```{r}
+fviz_nbclust(Data1, kmeans, method = "silhouette")
+```
+
+3.Gap Statistic Method
+
+```{r}
+set.seed(123)
+gap_stat <- clusGap(df, FUN = kmeans, nstart = 25,
+                    K.max = 10, B = 50)
+print(gap_stat, method = "firstmax")
+fviz_gap_stat(gap_stat)
+```
+
+Extracting Results / HASIL EKSTRAKSI
+
+```{r}
+set.seed(123)
+final <- kmeans(Data1, 3, nstart = 25)
+print(final)
+```
+
+kemudian dapat memvisualisasikan hasil menggunakan fviz_cluster:
+
+```{r}
+fviz_cluster(final, data = Data1[-1])
+```
+
+Jadi dapat disimpulkan data frame dari data uji yang telah ditambahkan dengan hasil cluster sebagai berikut :
+
+```{r}
+df.cluster = data.frame(Data1, final$cluster)
+View(df.cluster)
+```
+
+melihat karakteristik dari masing-masing cluster
+
+```{r}
+k1.1 = subset(df.cluster, k2.cluster = 1)
+k1.2 = subset(df.cluster, k2.cluster = 2)
+k1.3 = subset(df.cluster, k2.cluster = 3)
+meank1.1 = sapply(k1.1, mean)
+meank1.2 = sapply(k1.2, mean)
+meank1.3 = sapply(k1.3, mean)
+mean.tot = rbind(meank1.1, meank1.2, meank1.3)
+barplot(t(mean.tot[,-6]), beside = TRUE)
+```
+
